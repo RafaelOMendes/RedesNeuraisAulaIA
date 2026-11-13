@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Redes e históricos gerados ao rodar os comandos (recriados pelo roteiro do README)
+modelos/*
+!modelos/.gitkeep
+
+# Arquivos temporários de upload da interface web
+dados/*.tmp
+
+# Configurações locais de editor/ferramentas
+.claude/
+.vscode/
+.idea/

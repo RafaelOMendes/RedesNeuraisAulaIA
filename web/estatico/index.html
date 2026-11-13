@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Laboratório RNA MLP</title>
+  <meta name="description" content="Interface web do Trabalho Prático 02: crie, treine e use redes MLP implementadas à mão.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%236366f1'/%3E%3Cg fill='%23fff'%3E%3Ccircle cx='9' cy='10' r='2.6'/%3E%3Ccircle cx='9' cy='22' r='2.6'/%3E%3Ccircle cx='23' cy='16' r='2.9'/%3E%3C/g%3E%3Cg stroke='%23fff' stroke-width='1.6' opacity='.8'%3E%3Cpath d='M9 10L23 16M9 22L23 16'/%3E%3C/g%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/estatico/estilo.css">
+  <script type="module" src="/estatico/app.js"></script>
+</head>
+<body>
+  <div class="barra-rolagem" id="barra-rolagem" aria-hidden="true"></div>
+
+  <header class="topo" id="topo">
+    <a class="marca" href="#inicio" aria-label="Início">
+      <span class="marca-icone" aria-hidden="true">
+        <svg viewBox="0 0 32 32"><g class="marca-arestas"><path d="M7 9L16 7M7 9L16 16M7 9L16 25M7 23L16 7M7 23L16 16M7 23L16 25M16 7L25 16M16 16L25 16M16 25L25 16"/></g><circle cx="7" cy="9" r="2.6"/><circle cx="7" cy="23" r="2.6"/><circle cx="16" cy="7" r="2.4"/><circle cx="16" cy="16" r="2.4"/><circle cx="16" cy="25" r="2.4"/><circle cx="25" cy="16" r="2.9"/></svg>
+      </span>
+      <span class="marca-texto">RNA<b>·</b>MLP</span>
+    </a>
+    <nav class="nav" id="nav" aria-label="Seções">
+      <a href="#dados">Dados</a>
+      <a href="#arquitetura">Arquitetura</a>
+      <a href="#treino">Treino</a>
+      <a href="#resultados">Resultados</a>
+      <a href="#previsao">Previsão</a>
+      <a href="#modelos">Modelos</a>
+      <span class="nav-indicador" id="nav-indicador" aria-hidden="true"></span>
+    </nav>
+    <button class="botao-icone" id="botao-tema" type="button" aria-label="Alternar tema claro/escuro">
+      <svg class="icone-sol" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg>
+      <svg class="icone-lua" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.6A8.5 8.5 0 0 1 9.4 3.5a8.5 8.5 0 1 0 11.1 11.1z"/></svg>
+    </button>
+  </header>
+
+  <section class="hero" id="inicio">
+    <canvas id="fundo-hero" aria-hidden="true"></canvas>
+    <div class="hero-conteudo">
+      <span class="selo"><i></i>Trabalho Prático 02 · Inteligência Artificial</span>
+      <h1>
+        <span class="linha"><span>Redes neurais MLP,</span></span>
+        <span class="linha"><span class="gradiente">implementadas à mão.</span></span>
+      </h1>
+      <p class="hero-texto">
+        Monte a arquitetura, escolha os dados e veja o <em>backpropagation</em> aprender em tempo real.
+        Cada número desta página é calculado pelo pacote <code>rna</code> em Python, só com numpy.
+      </p>
+      <div class="hero-acoes">
+        <a class="botao primario" href="#dados">Começar <span aria-hidden="true">→</span></a>
+        <a class="botao fantasma" href="#treino">Ver o treino ao vivo</a>
+      </div>
+      <ul class="hero-chips" aria-label="O que está implementado">
+        <li>Forward</li><li>Backpropagation</li><li>SGD puro</li><li>Xavier · He</li><li>MSE</li><li>Min-Max · Z-score</li>
+      </ul>
+    </div>
+    <a class="hero-rolar" href="#dados" aria-label="Ir para os dados"><span></span></a>
+  </section>
+
+  <main>
+    <!-- ============================== 01 DADOS ============================== -->
+    <section class="secao" id="dados">
+      <header class="secao-cabecalho revelar">
+        <span class="secao-num">01</span>
+        <div>
+          <h2>Dados</h2>
+          <p>Escolha um CSV, marque as colunas de entrada e de saída e configure a divisão e a normalização.</p>
+        </div>
+      </header>
+
+      <div class="grade grade-dados">
+        <article class="cartao revelar">
+          <div class="cartao-topo"><h3>Datasets</h3><span class="dica">pasta <code>dados/</code></span></div>
+          <div class="lista-datasets" id="lista-datasets">
+            <div class="esqueleto"></div><div class="esqueleto"></div><div class="esqueleto"></div>
+          </div>
+          <label class="soltar" id="soltar">
+            <input type="file" accept=".csv,text/csv" id="arquivo-csv">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
+            <span>Arraste um CSV aqui ou <u>clique para enviar</u></span>
+          </label>
+        </article>
+
+        <article class="cartao revelar">
+          <div class="cartao-topo"><h3>Colunas</h3><span class="dica" id="dica-dataset">nenhum dataset</span></div>
+          <div class="legenda-papeis">
+            <span class="papel entrada">entrada</span><span class="papel saida">saída</span><span class="papel ignorada">ignorada</span>
+            <span class="dica">clique em uma coluna para alternar</span>
+          </div>
+          <div class="colunas" id="colunas"><p class="vazio">Escolha um dataset ao lado.</p></div>
+          <div class="tabela-rolagem"><table class="tabela" id="amostra"></table></div>
+        </article>
+
+        <article class="cartao revelar cartao-largo">
+          <div class="cartao-topo"><h3>Divisão e normalização</h3><span class="dica">divide primeiro, normaliza depois (parâmetros só do treino)</span></div>
+          <div class="barra-divisao" id="barra-divisao" aria-hidden="true">
+            <span class="seg treino"><b>treino</b></span><span class="seg validacao"><b>validação</b></span><span class="seg teste"><b>teste</b></span>
+          </div>
+          <div class="controles-divisao">
+            <label class="campo">
+              <span>Treino <b id="rot-treino">70%</b></span>
+              <input type="range" id="p-treino" min="5" max="100" step="5" value="70">
+            </label>
+            <label class="campo">
+              <span>Validação <b id="rot-validacao">15%</b></span>
+              <input type="range" id="p-validacao" min="0" max="95" step="5" value="15">
+            </label>
+            <div class="campo">
+              <span>Teste</span>
+              <b class="valor-destaque" id="rot-teste">15%</b>
+            </div>
+            <label class="campo">
+              <span>Seed (divisão e embaralhamento)</span>
+              <input type="number" id="seed-treino" value="42">
+            </label>
+          </div>
+          <div class="campo">
+            <span>Normalização das entradas</span>
+            <div class="segmentado" id="normalizacao" role="radiogroup" aria-label="Normalização">
+              <span class="segmentado-fundo" aria-hidden="true"></span>
+              <button type="button" role="radio" data-valor="nenhuma">Nenhuma</button>
+              <button type="button" role="radio" data-valor="minmax">Min-Max</button>
+              <button type="button" role="radio" data-valor="zscore">Z-score</button>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ============================ 02 ARQUITETURA ============================ -->
+    <section class="secao" id="arquitetura">
+      <header class="secao-cabecalho revelar">
+        <span class="secao-num">02</span>
+        <div>
+          <h2>Arquitetura</h2>
+          <p>Quantas camadas ocultas, quantos neurônios e qual ativação em cada uma. Entradas e saídas vêm das colunas escolhidas.</p>
+        </div>
+      </header>
+
+      <div class="grade grade-arq">
+        <article class="cartao revelar">
+          <div class="cartao-topo"><h3>Camadas</h3><span class="dica" id="arq-texto">—</span></div>
+
+          <div class="camada fixa">
+            <div class="camada-rotulo"><span class="camada-tipo">Entrada</span><small>= colunas de entrada</small></div>
+            <b class="camada-n" id="n-entradas">—</b>
+          </div>
+
+          <ol class="lista-ocultas" id="lista-ocultas"></ol>
+
+          <button class="botao tracejado largo" id="add-camada" type="button">
+            <span aria-hidden="true">+</span> Adicionar camada oculta
+          </button>
+
+          <div class="camada fixa saida">
+            <div class="camada-rotulo"><span class="camada-tipo">Saída</span><small>= colunas de saída</small></div>
+            <div class="pilulas" id="ativ-saida" role="radiogroup" aria-label="Ativação da saída"></div>
+            <b class="camada-n" id="n-saidas">—</b>
+          </div>
+
+          <div class="linha-campos">
+            <label class="campo"><span>Seed da inicialização</span><input type="number" id="seed-init" value="7"></label>
+            <div class="resumo-params"><span>Parâmetros</span><b id="n-params">—</b></div>
+          </div>
+          <button class="botao primario largo" id="criar-rede" type="button">Criar rede</button>
+        </article>
+
+        <article class="cartao revelar cartao-diagrama">
+          <div class="cartao-topo"><h3>Diagrama</h3><span class="estado-rede" id="status-rede">prévia</span></div>
+          <div class="diagrama-area"><svg id="diagrama" viewBox="0 0 800 440" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Diagrama da rede"></svg></div>
+          <div class="legenda-pesos">
+            <span><i class="pos"></i>peso positivo</span>
+            <span><i class="neg"></i>peso negativo</span>
+            <span><i class="esp"></i>espessura = |peso|</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- =============================== 03 TREINO =============================== -->
+    <section class="secao" id="treino">
+      <header class="secao-cabecalho revelar">
+        <span class="secao-num">03</span>
+        <div>
+          <h2>Treino</h2>
+          <p>SGD puro: os pesos mudam depois de cada exemplo. O MSE de treino e de validação é calculado ao fim de cada época.</p>
+        </div>
+      </header>
+
+      <div class="grade grade-treino">
+        <article class="cartao revelar cartao-controles">
+          <div class="cartao-topo"><h3>Configuração</h3></div>
+          <label class="campo">
+            <span>Épocas</span>
+            <input type="number" id="epocas" value="300" min="1" max="100000">
+          </label>
+          <div class="atalhos" id="atalhos-epocas">
+            <button type="button" data-valor="100">100</button><button type="button" data-valor="300">300</button>
+            <button type="button" data-valor="1000">1000</button><button type="button" data-valor="2000">2000</button>
+          </div>
+          <label class="campo">
+            <span>Taxa de aprendizado <b id="rot-taxa">0.1</b></span>
+            <input type="range" id="taxa" min="-3" max="0" step="0.05" value="-1">
+          </label>
+          <label class="alternar"><input type="checkbox" id="embaralhar" checked><span class="trilho" aria-hidden="true"></span>Embaralhar o treino a cada época</label>
+          <label class="alternar"><input type="checkbox" id="continuar"><span class="trilho" aria-hidden="true"></span>Continuar da rede atual (não recriar pesos)</label>
+
+          <div class="acoes-treino">
+            <button class="botao primario" id="botao-treinar" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.8v14.4L19 12z"/></svg>Treinar
+            </button>
+            <button class="botao perigo" id="botao-parar" type="button" disabled>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>Parar
+            </button>
+          </div>
+
+          <div class="progresso" id="progresso">
+            <div class="progresso-topo">
+              <span>Época <b id="epoca-atual">0</b> / <span id="epoca-total">—</span></span>
+              <span id="tempo-treino">—</span>
+            </div>
+            <div class="progresso-barra"><span id="progresso-preenchido"></span></div>
+            <div class="tamanhos" id="tamanhos"></div>
+          </div>
+
+          <div class="mini-metricas">
+            <div><span>MSE treino</span><b id="mse-tr-vivo">—</b></div>
+            <div><span>MSE validação</span><b id="mse-va-vivo">—</b></div>
+          </div>
+        </article>
+
+        <article class="cartao revelar cartao-grafico">
+          <div class="cartao-topo">
+            <h3>MSE por época</h3>
+            <div class="legenda">
+              <span class="item-legenda l-treino">treino</span>
+              <span class="item-legenda l-validacao">validação</span>
+              <label class="alternar pequeno"><input type="checkbox" id="escala-log" checked><span class="trilho" aria-hidden="true"></span>log</label>
+            </div>
+          </div>
+          <div class="canvas-area"><canvas id="grafico"></canvas><div class="dica-flutuante" id="dica-grafico"></div></div>
+        </article>
+
+        <article class="cartao revelar cartao-visual">
+          <div class="cartao-topo"><h3 id="titulo-visual">O que a rede aprendeu</h3><span class="dica" id="dica-visual"></span></div>
+          <div class="canvas-area quadrada"><canvas id="visual"></canvas></div>
+          <div class="legenda legenda-visual" id="legenda-visual"></div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ============================= 04 RESULTADOS ============================= -->
+    <section class="secao" id="resultados">
+      <header class="secao-cabecalho revelar">
+        <span class="secao-num">04</span>
+        <div>
+          <h2>Resultados</h2>
+          <p>O conjunto de teste só é usado aqui, depois do treino. Ele nunca ajusta pesos.</p>
+        </div>
+      </header>
+      <div class="grade metricas" id="metricas">
+        <article class="cartao metrica revelar" data-chave="mse_treino_inicial"><span>MSE inicial · treino</span><b>—</b><small>antes da 1ª época</small></article>
+        <article class="cartao metrica revelar" data-chave="mse_treino_final"><span>MSE final · treino</span><b>—</b><small>última época</small></article>
+        <article class="cartao metrica revelar" data-chave="mse_validacao_final"><span>MSE · validação</span><b>—</b><small>nunca altera pesos</small></article>
+        <article class="cartao metrica destaque revelar" data-chave="mse_teste"><span>MSE · teste</span><b>—</b><small>avaliado só no fim</small></article>
+        <article class="cartao metrica revelar" data-chave="acuracia_teste"><span>Acurácia · teste</span><b>—</b><small>classificação (extra)</small></article>
+      </div>
+      <p class="status-final revelar" id="status-final">Treine uma rede para ver os resultados.</p>
+    </section>
+
+    <!-- ============================== 05 PREVISÃO ============================== -->
+    <section class="secao" id="previsao">
+      <header class="secao-cabecalho revelar">
+        <span class="secao-num">05</span>
+        <div>
+          <h2>Previsão</h2>
+          <p>Só propagação direta. A mesma normalização salva no treino é aplicada antes.</p>
+        </div>
+      </header>
+      <div class="grade grade-previsao">
+        <article class="cartao revelar">
+          <div class="cartao-topo"><h3>Valores de entrada</h3><span class="dica" id="dica-previsao"></span></div>
+          <div class="campos-previsao" id="campos-previsao"><p class="vazio">Crie ou carregue uma rede.</p></div>
+          <label class="campo">
+            <span>ou digite livremente, separados por vírgula</span>
+            <input type="text" id="texto-previsao" placeholder="ex.: 6, 30" autocomplete="off">
+          </label>
+          <button class="botao primario largo" id="botao-prever" type="button">Prever</button>
+        </article>
+        <article class="cartao revelar">
+          <div class="cartao-topo"><h3>Saída da rede</h3></div>
+          <div class="saida-previsao" id="saida-previsao"><p class="vazio">O resultado aparece aqui.</p></div>
+          <p class="nota" id="nota-previsao"></p>
+        </article>
+      </div>
+    </section>
+
+    <!-- =============================== 06 MODELOS =============================== -->
+    <section class="secao" id="modelos">
+      <header class="secao-cabecalho revelar">
+        <span class="secao-num">06</span>
+        <div>
+          <h2>Modelos</h2>
+          <p>Salve a rede em JSON (arquitetura, pesos, vieses e normalização) e carregue depois. Os arquivos ficam em <code>modelos/</code>.</p>
+        </div>
+      </header>
+      <div class="grade grade-modelos">
+        <article class="cartao revelar">
+          <div class="cartao-topo"><h3>Salvar rede atual</h3></div>
+          <div class="linha-salvar">
+            <input type="text" id="nome-modelo" placeholder="meu_modelo" autocomplete="off" aria-label="Nome do arquivo">
+            <button class="botao primario" id="botao-salvar" type="button">Salvar</button>
+          </div>
+          <p class="dica">Também abre pela linha de comando: <code>python main.py info -m modelos/&lt;nome&gt;.json</code></p>
+        </article>
+        <article class="cartao revelar cartao-largo">
+          <div class="cartao-topo"><h3>Modelos salvos</h3><button class="botao-texto" id="atualizar-modelos" type="button">atualizar</button></div>
+          <div class="lista-modelos" id="lista-modelos"><div class="esqueleto"></div><div class="esqueleto"></div></div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="rodape">
+    <p>Trabalho Prático 02 · RNA MLP. Forward, backpropagation e SGD implementados à mão no pacote <code>rna</code>.</p>
+    <p class="dica">Linha de comando: <code>python main.py -h</code> · Testes: <code>python -m unittest discover -s testes -v</code></p>
+  </footer>
+
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+</body>
+</html>
